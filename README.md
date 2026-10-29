@@ -88,7 +88,7 @@ Cleanet), where doublets should sit at higher FSC-A for their FSC-H.
 | `DEBRIS_SUM_MAX` | number | `0` (off) | Exclude events with FSC-A + SSC-A below this from the simulation. |
 | `MIN_EVENTS` | integer | `1000` | Smaller files are passed through unchanged. |
 | `PLOTS` | boolean | `true` | Write the diagnostic plots. |
-| `THREADS` | integer | `2` | Files processed at once (one R process each; Cleanet's neighbour search is single-threaded). |
+| `THREADS` | integer | `4` | Files processed at once (one R process each; Cleanet's neighbour search is single-threaded, so match the vCPUs). |
 | `SEED` | integer | `42` | Seed for the random pairs; results are reproducible for a given seed. |
 
 ## Results on the demo data
@@ -115,7 +115,7 @@ The full output is in `workflow-immune-cytometry/data/work/cleanet/` for the dow
 
 ## Runtime
 
-`computeTypes: [standard]`, 2 vCPU / 8 GiB, 4 h timeout. The cost is the approximate
+`computeTypes: [standard]`, 4 vCPU / 16 GiB, 4 h timeout. The cost is the approximate
 nearest-neighbour search (HNSW, single-threaded inside Cleanet) over 1.5 × the events of a
 file; memory and time grow roughly linearly with events.
 
@@ -127,7 +127,9 @@ Measured on the 24 demo files (9.8 M events), amd64 image under emulation on an 
 | largest file alone (600k events) | 4 min 25 s | 1.84 GB |
 | all 24 files, `THREADS=2` (default) | 29 min 13 s – 33 min 30 s (two runs) | 3.8–3.9 GB |
 
-Expect it to be several times faster on native amd64. 8 GiB holds two ~1M-event files at once.
+On Fargate (native amd64) a file took about as long as under emulation: 5–9 min per
+400k-event file at 2 vCPU, ~90 min for the 24 files with `THREADS=2`, so the app now asks
+for 4 vCPU and runs four files at once. 16 GiB holds four ~1M-event files at once.
 
 Image: 1.88 GB unpacked, 474 MB compressed (`docker images`): `rocker/r-ver:4.5.3` plus a
 412 MB layer of R packages (Cleanet, RcppHNSW, flowCore and their dependencies, built from

@@ -15,11 +15,11 @@ application:
   type: processor
   tags: [cytometry, flow-cytometry, mass-cytometry, fcs, doublets, quality-control, cleanet, immunology]
 runtime:
-  cpu: 2048
+  cpu: 4096
   # Measured on the 24 demo files: ~1.85 GB per 600k-event file in flight (the k-NN index
-  # over 1.5 x the events), THREADS=2 (default) peaks at ~3.7 GB. 8 GiB leaves room for
-  # two 1M-event files.
-  memory: 8192
+  # over 1.5 x the events), so THREADS=4 (default, one file per vCPU) peaks at ~7.4 GB.
+  # 16 GiB leaves room for four 1M-event files. On 2 vCPU the demo took ~90 min on Fargate.
+  memory: 16384
   computeTypes: [standard]
   timeoutSeconds: 14400
 parameters:
@@ -73,8 +73,8 @@ parameters:
     label: Files in parallel
     description: >-
       How many files are processed at once (each in its own process, ~1.9 GB of memory
-      per 600k-event file). Cleanet itself uses one core per file.
-    defaultValue: 2
+      per 600k-event file). Cleanet itself uses one core per file, so match the vCPUs.
+    defaultValue: 4
     min: 1
     max: 64
   - name: SEED

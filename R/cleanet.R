@@ -20,7 +20,7 @@ cleanet_params <- function() {
     DEBRIS_SUM_MAX = env_number("DEBRIS_SUM_MAX", 0, min = 0),
     MIN_EVENTS = env_number("MIN_EVENTS", 1000, min = 10, integer = TRUE),
     PLOTS = env_bool("PLOTS", TRUE),
-    THREADS = env_number("THREADS", 2, min = 1, max = 64, integer = TRUE),
+    THREADS = env_number("THREADS", 4, min = 1, max = 64, integer = TRUE),
     SEED = env_number("SEED", 42, integer = TRUE)
   )
 }
