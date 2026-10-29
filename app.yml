@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://schemas.pennsieve.io/app-manifest/v1.json
+schemaVersion: "1.0"
+application:
+  name: Cleanet Doublet Removal
+  description: >-
+    Finds doublets (two cells measured as one event) in each FCS file with Cleanet
+    (Ionita et al., Cytometry A 2025; Penn Institute for Immunology and Immune Health):
+    it simulates doublets by adding the linear marker values of random pairs of events,
+    and calls an event a doublet when more than 5 of its 15 nearest neighbours in marker
+    space are simulated doublets. Works on the panel's marker channels only (no scatter
+    gates), so it catches doublets a FSC-A/FSC-H gate misses and keeps large single cells.
+    Reads the arcsinh-transformed files and panel.csv from fcs-prep/peacoqc, writes the
+    singlets (same names, channels and keywords plus PENNSIEVE_DOUBLETS), a per-sample
+    table (qc/doublets.csv) and a diagnostic plot per sample.
+  type: processor
+  tags: [cytometry, flow-cytometry, mass-cytometry, fcs, doublets, quality-control, cleanet, immunology]
+runtime:
+  cpu: 2048
+  # Measured on the 24 demo files: ~1.85 GB per 600k-event file in flight (the k-NN index
+  # over 1.5 x the events), THREADS=2 (default) peaks at ~3.7 GB. 8 GiB leaves room for
+  # two 1M-event files.
+  memory: 8192
+  computeTypes: [standard]
+  timeoutSeconds: 14400
+parameters:
+  - name: KEEP_DOUBLETS
+    type: boolean
+    label: Keep doublets
+    description: >-
+      false (default): the output files hold the singlets only. true: every event is kept
+      (detection and report only).
+    defaultValue: false
+  - name: THRESH
+    type: integer
+    label: Doublet threshold
+    description: >-
+      An event is a doublet when more than THRESH of its 15 nearest neighbours are
+      simulated doublets (Cleanet's thresh; default 5). Lower calls more doublets.
+    defaultValue: 5
+    min: 0
+    max: 14
+  - name: COFACTOR
+    type: string
+    label: Arcsinh cofactor
+    description: >-
+      Scale on which Cleanet measures distances. "panel" (default): each marker's cofactor
+      from panel.csv, i.e. the scale the workflow already uses. A number: one cofactor for
+      all markers (Cleanet's own default is 500 for conventional flow, 5 for mass cytometry).
+    defaultValue: panel
+  - name: DEBRIS_SUM_MAX
+    type: number
+    label: Debris cut-off (FSC-A + SSC-A)
+    description: >-
+      0 (default): off. Otherwise events with FSC-A + SSC-A below this value (both > 0) are
+      left out of the doublet simulation, as Cleanet recommends for samples with a lot of
+      debris (its example uses 50,000 on a conventional cytometer's scale). They are still
+      classified and kept.
+    defaultValue: 0
+    min: 0
+  - name: MIN_EVENTS
+    type: integer
+    label: Minimum events
+    description: Files with fewer events are passed through unchanged.
+    defaultValue: 1000
+    min: 10
+  - name: PLOTS
+    type: boolean
+    label: Plots
+    description: Write the diagnostic plot per sample to qc/plots/<sample_id>.png.
+    defaultValue: true
+  - name: THREADS
+    type: integer
+    label: Files in parallel
+    description: >-
+      How many files are processed at once (each in its own process, ~1.9 GB of memory
+      per 600k-event file). Cleanet itself uses one core per file.
+    defaultValue: 2
+    min: 1
+    max: 64
+  - name: SEED
+    type: integer
+    description: Seed for the random pairs that make the simulated doublets.
+    defaultValue: 42
+inputs:
+  - name: fcs
+    description: >-
+      <sample_id>.fcs files (FCS 3.1, marker channels arcsinh-transformed), e.g. from
+      peacoqc. Looked for in INPUT_DIR/fcs/, else anywhere under INPUT_DIR.
+    mediaTypes: [application/vnd.isac.fcs]
+    placement: subfolder
+    required: true
+  - name: metadata
+    description: >-
+      fcs-prep's metadata folder; panel.csv gives the marker channels Cleanet uses and their
+      arcsinh cofactors (needed to get back to linear values; without it the cofactors are
+      read from the PENNSIEVE_COFACTORS keyword fcs-prep writes).
+    mediaTypes: [text/csv]
+    placement: subfolder
+    required: false
+outputs:
+  - name: fcs
+    description: >-
+      fcs/<sample_id>.fcs: the singlets (all events with KEEP_DOUBLETS=true), same channels
+      and keywords plus PENNSIEVE_DOUBLETS=cleanet;doublets=<n>;...; fcs/provenance.json.
+    mediaTypes: [application/vnd.isac.fcs, application/json]
+  - name: qc
+    description: >-
+      qc/doublets.csv: sample_id, events_in, doublets, pct_doublets, events_out,
+      sensitivity, ...; qc/plots/<sample_id>.png: neighbour-count histogram and the calls
+      on FSC-A/FSC-H; qc/provenance.json.
+    mediaTypes: [text/csv, image/png, application/json]
