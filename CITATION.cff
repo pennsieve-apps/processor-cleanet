@@ -1,0 +1,93 @@
+cff-version: "1.2.0"
+message: If you use this app, please cite it and the works it builds on, listed under references.
+type: software
+title: Cleanet Doublet Removal
+abstract: Finds and removes doublets (two cells measured as one event) in each FCS file with Cleanet,
+  which simulates doublets from random pairs of events and flags events whose marker-space neighbours
+  are mostly simulated doublets. Writes the singlets, a per-sample table and a diagnostic plot per sample.
+authors:
+- name: Pennsieve (University of Pennsylvania)
+repository-code: https://github.com/pennsieve-apps/processor-cleanet
+license: Apache-2.0
+keywords:
+- cytometry
+- flow-cytometry
+- mass-cytometry
+- fcs
+- doublets
+- quality-control
+- cleanet
+- immunology
+references:
+- type: article
+  title: 'Cleanet: Robust Doublet Detection in Cytometry Data Based on Protein Expression Patterns'
+  authors:
+  - family-names: Ionita
+    given-names: Matei
+  - family-names: McKeague
+    given-names: Michelle L.
+  - family-names: Painter
+    given-names: Mark M.
+  - family-names: Mathew
+    given-names: Divij
+  - family-names: Pattekar
+    given-names: Ajinkya
+  - family-names: Rezk
+    given-names: Ayman
+  - family-names: Shwetank
+  - family-names: Maseda
+    given-names: Damian
+  - family-names: Wherry
+    given-names: E. John
+  - family-names: Greenplate
+    given-names: Allison R.
+  year: 2025
+  journal: Cytometry Part A
+  volume: 107
+  issue: '11'
+  start: '716'
+  end: '729'
+  doi: 10.1002/cyto.a.24961
+- type: article
+  title: 'flowCore: a Bioconductor package for high throughput flow cytometry'
+  authors:
+  - family-names: Hahne
+    given-names: Florian
+  - family-names: LeMeur
+    given-names: Nolwenn
+  - family-names: Brinkman
+    given-names: Ryan R
+  - family-names: Ellis
+    given-names: Byron
+  - family-names: Haaland
+    given-names: Perry
+  - family-names: Sarkar
+    given-names: Deepayan
+  - family-names: Spidlen
+    given-names: Josef
+  - family-names: Strain
+    given-names: Errol
+  - family-names: Gentleman
+    given-names: Robert
+  year: 2009
+  journal: BMC Bioinformatics
+  volume: 10
+  issue: '1'
+  start: '106'
+  doi: 10.1186/1471-2105-10-106
+- type: data
+  title: 'CytoBatchFlagR: Spectral flow cytometry dataset'
+  authors:
+  - family-names: Koenig
+    given-names: Zachary
+  - family-names: Andorf
+    given-names: Sandra
+  - family-names: Tilburgs
+    given-names: Tamara
+  - family-names: Eswar
+    given-names: Shruti
+  year: 2025
+  publisher:
+    name: Zenodo
+  doi: 10.5281/zenodo.15388817
+  license: CC-BY-4.0
