@@ -13,7 +13,7 @@ files are dropped from all (the demo's BV785-A / CD28), marker = $PnS, cofactor 
 --events N keeps N events per file, chosen at random (seeded) but kept in acquisition
 order, so PeacoQC still sees the time course; --events 0 keeps every event.
 
-    python3 tests/make_fixture.py <demo dir> <out dir> [--events 20000] [--files 4]
+    python3 tests/make_fixture.py <demo dir> <out dir> [--events 20000] [--files 4] [--sheet tests/demo-samples.csv]
 
 Needs flowio and numpy (pip install -r requirements-dev.txt).
 """
@@ -53,11 +53,12 @@ def main(argv=None):
     ap.add_argument("out")
     ap.add_argument("--events", type=int, default=20000, help="events per file (0 = all)")
     ap.add_argument("--files", type=int, default=0, help="only the first N files of the sample sheet (0 = all)")
+    ap.add_argument("--sheet", help="the sample sheet (default: <demo dir>/samples.csv), e.g. tests/demo-samples.csv")
     ap.add_argument("--cofactor", type=float, default=6000.0)
     ap.add_argument("--seed", type=int, default=42)
     a = ap.parse_args(argv)
 
-    sheet_path = os.path.join(a.source, "samples.csv")
+    sheet_path = a.sheet or os.path.join(a.source, "samples.csv")
     if os.path.exists(sheet_path):
         with open(sheet_path, newline="") as fh:
             sheet = list(csv.DictReader(fh))

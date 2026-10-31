@@ -109,3 +109,11 @@ outputs:
       sensitivity, ...; qc/plots/<sample_id>.png: neighbour-count histogram and the calls
       on FSC-A/FSC-H; qc/provenance.json.
     mediaTypes: [text/csv, image/png, application/json]
+
+# How a release is tested before it is made public: the inputs a review run uses.
+# See app-deploy-service docs/app-manifest-review.md.
+review:
+  version: 1
+  generate:
+    command: python tests/make_fixture.py "$REVIEW_SOURCE_DIR" "$REVIEW_INPUT_DIR" --events 20000 --sheet tests/demo-samples.csv
+    source: { doi: 10.5281/zenodo.15388817, files: ["B0[1-6]_*.fcs"] }
